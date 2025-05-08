@@ -55,11 +55,18 @@ const { readFileAndParse, writeFileAndStringify } = require("./units.js");
 const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
 
+
   if (parsedUrl.pathname === "/products" && req.method === "GET") {
+    const { page = 1, limit = 10 } = parsedUrl.query;
     const products = await readFileAndParse("products.json", true);
+  
+    const startIndex = (page - 1) * limit;
+    const paginatedProducts = products.slice(startIndex, startIndex + Number(limit));
+  
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(products));
+    res.end(JSON.stringify(paginatedProducts));
   }
+
 
   if (parsedUrl.pathname === "/products" && req.method === "POST") {
     let body = "";
